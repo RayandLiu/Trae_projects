@@ -22,6 +22,12 @@ const PORT = process.env.PORT || 3000;
 // API配置
 const API_KEY = process.env.API_KEY;
 const API_URL = process.env.API_URL;
+const MODEL_NAME = process.env.MODEL_NAME;
+
+if (!API_KEY || !API_URL || !MODEL_NAME) {
+    console.error('错误：缺少必要的环境变量');
+    process.exit(1);
+}
 
 // 中间件设置
 app.use(express.json());
@@ -75,7 +81,7 @@ app.post('/api/chat', async (req, res) => {
                 'Authorization': `Bearer ${API_KEY}`
             },
             data: {
-                model: 'deepseek-r1-250120',
+                model: MODEL_NAME,
                 messages: [
                     {
                         role: 'system',
@@ -98,10 +104,6 @@ app.post('/api/chat', async (req, res) => {
         if (response.data && response.data.choices && response.data.choices.length > 0) {
             const aiResponse = response.data.choices[0].message.content;
             res.send(aiResponse);
-        } else {
-            console.error('API响应格式异常:', response.data);
-            res.status(502).send('AI服务响应格式异常');
-        }
         } else {
             console.error('API响应格式不符合预期:', response.data);
             res.status(500).send('API响应格式错误');
